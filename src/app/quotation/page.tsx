@@ -286,7 +286,7 @@ const QuotationForm = () => {
             </div>
             <div>
               <Label htmlFor="productName">Product</Label>
-              <Select onValueChange={value => setSelectedProductId(parseInt(value))}>
+              <Select onValueChange={value => setSelectedProductId(parseInt(value || '0'))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a product" />
                 </SelectTrigger>
@@ -302,7 +302,7 @@ const QuotationForm = () => {
 
             <div>
               <Label htmlFor="material">Material</Label>
-              <Select onValueChange={value => setSelectedMaterialId(parseInt(value))}>
+              <Select onValueChange={value => setSelectedMaterialId(parseInt(value || '0'))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a material" />
                 </SelectTrigger>
@@ -321,7 +321,7 @@ const QuotationForm = () => {
 
             <div>
               <Label htmlFor="coating">Coating</Label>
-              <Select onValueChange={value => setSelectedCoatingId(parseInt(value))}>
+              <Select onValueChange={value => setSelectedCoatingId(parseInt(value || '0'))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a coating" />
                 </SelectTrigger>
