@@ -358,8 +358,7 @@ const QuotationForm = () => {
               />
             </div>
             <Button type="button" className="bg-accent text-accent-foreground" onClick={calculateTotalCost}>
-              Calculate Cost
-            </Button>
+              Calculate Cost</Button>
             <Button type="submit" className="bg-accent text-accent-foreground">Generate Quotation</Button>
           </form>
         </CardContent>
