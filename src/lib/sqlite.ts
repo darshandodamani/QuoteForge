@@ -1,9 +1,11 @@
+'use server';
 import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import { open, Database } from 'sqlite';
+import path from 'path';
 
-const dbFile = './mydb.sqlite';
+const dbFile = path.resolve('./mydb.sqlite');
 
-async function openDb() {
+async function openDb(): Promise<Database> {
   const db = await open({
     filename: dbFile,
     driver: sqlite3.Database
@@ -79,3 +81,4 @@ export async function initializeDatabase() {
 
 
 export { openDb, initializeDatabase };
+
