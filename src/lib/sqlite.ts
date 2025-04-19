@@ -1,7 +1,6 @@
 'use server';
 import sqlite3 from 'sqlite3';
 import { Database } from 'sqlite3';
-import { open } from 'sqlite';
 import path from 'path';
 
 const dbFile = path.resolve('./mydb.sqlite');
@@ -9,29 +8,29 @@ const dbFile = path.resolve('./mydb.sqlite');
 let dbInstance: Database | null = null;
 
 async function openDb(): Promise<Database> {
-  if (dbInstance) {
-    return dbInstance;
-  }
-
-  sqlite3.verbose()
-  const db = new sqlite3.Database(dbFile, (err) => {
-    if (err) {
-      console.error("Error opening database:", err.message);
-    } else {
-      console.log("Connected to the database.");
+  return new Promise((resolve, reject) => {
+    if (dbInstance) {
+      resolve(dbInstance);
+      return;
     }
+
+    const db = new sqlite3.Database(dbFile, (err) => {
+      if (err) {
+        console.error("Error opening database:", err.message);
+        reject(err);
+      } else {
+        console.log("Connected to the database.");
+        dbInstance = db;
+        resolve(db);
+      }
+    });
   });
-
-
-  dbInstance = db as any;
-
-  return dbInstance;
 }
 
 export async function initializeDatabase() {
   const db = await openDb();
 
-  return new Promise<void>((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     db.serialize(() => {
       db.run(`
         CREATE TABLE IF NOT EXISTS Products (
