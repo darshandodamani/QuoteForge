@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { generatePdf } from '@/services/pdf-generator';
 import { sendEmail } from '@/services/email';
+import { useToast } from "@/hooks/use-toast"
 
 const QuotationForm = () => {
   const [companyName, setCompanyName] = useState('');
@@ -18,6 +19,7 @@ const QuotationForm = () => {
   const [quantity, setQuantity] = useState(1);
   const [totalCost, setTotalCost] = useState(0);
   const [pricePerUnit, setPricePerUnit] = useState(0); // Added pricePerUnit state
+	const { toast } = useToast()
 
   const products = [
     { name: 'Product A', material: 'Steel', coating: 'Powder', price: 50 },
@@ -66,13 +68,24 @@ const QuotationForm = () => {
       const emailSent = await sendEmail(emailParams);
 
       if (emailSent) {
-        alert('Quotation successfully sent!');
+				toast({
+					title: "Quotation sent!",
+					description: "Your quotation has been sent to the customer.",
+				})
       } else {
-        alert('Failed to send quotation. Please check the email configuration.');
+				toast({
+					variant: "destructive",
+					title: "Uh oh! Something went wrong.",
+					description: "There was a problem sending the quotation.",
+				})
       }
     } catch (error) {
       console.error('Error generating PDF or sending email:', error);
-      alert('An error occurred. Please try again.');
+			toast({
+				variant: "destructive",
+				title: "Uh oh! Something went wrong.",
+				description: "There was a problem generating the PDF or sending the email.",
+			})
     }
   };
 
