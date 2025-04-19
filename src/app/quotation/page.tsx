@@ -1,15 +1,27 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { generatePdf } from '@/services/pdf-generator';
-import { sendEmail } from '@/services/email';
-import { useToast } from "@/hooks/use-toast";
-import { initializeDatabase, openDb } from '@/lib/sqlite';
+import React, {useState, useEffect} from 'react';
+import {Input} from '@/components/ui/input';
+import {Button} from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {Label} from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {generatePdf} from '@/services/pdf-generator';
+import {sendEmail} from '@/services/email';
+import {useToast} from '@/hooks/use-toast';
+import {initializeDatabase, openDb} from '@/lib/sqlite';
 
 interface Product {
   id: number;
@@ -36,11 +48,17 @@ const QuotationForm = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [coatings, setCoatings] = useState<Coating[]>([]);
 
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
-  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(null);
-  const [selectedCoatingId, setSelectedCoatingId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
+  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(
+    null
+  );
+  const [selectedCoatingId, setSelectedCoatingId] = useState<number | null>(
+    null
+  );
 
-  const { toast } = useToast();
+  const {toast} = useToast();
 
   useEffect(() => {
     const loadData = async () => {
@@ -50,40 +68,46 @@ const QuotationForm = () => {
         const db = await openDb();
 
         // Load Products
-        const productsData: Product[] = await db.all("SELECT id, name FROM Products");
+        const productsData: Product[] = await db.all(
+          'SELECT id, name FROM Products'
+        );
         setProducts(productsData);
 
         // Load Materials
-        const materialsData: Material[] = await db.all("SELECT material_id, name FROM Materials");
+        const materialsData: Material[] = await db.all(
+          'SELECT material_id, name FROM Materials'
+        );
         setMaterials(materialsData);
 
         // Load Coatings
-        const coatingsData: Coating[] = await db.all("SELECT coating_id, name FROM Coatings");
+        const coatingsData: Coating[] = await db.all(
+          'SELECT coating_id, name FROM Coatings'
+        );
         setCoatings(coatingsData);
 
-
         // Insert default CostParameters if it doesn't exist
-        const costParams = await db.get("SELECT * FROM CostParameters WHERE parameter_id = 1");
+        const costParams = await db.get(
+          'SELECT * FROM CostParameters WHERE parameter_id = 1'
+        );
         if (!costParams) {
           await db.run(
-            "INSERT INTO CostParameters (parameter_id, labor_rate, overhead_rate) VALUES (1, 50.00, 0.20)"
+            'INSERT INTO CostParameters (parameter_id, labor_rate, overhead_rate) VALUES (1, 50.00, 0.20)'
           );
         }
 
         await db.close();
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error('Error loading data:', error);
         toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "Failed to load products, materials, and coatings.",
+          variant: 'destructive',
+          title: 'Uh oh! Something went wrong.',
+          description: 'Failed to load products, materials, and coatings.',
         });
       }
     };
 
     loadData();
   }, [toast]);
-
 
   const calculateTotalCost = async () => {
     if (!selectedProductId || !selectedMaterialId || !selectedCoatingId) {
@@ -94,10 +118,21 @@ const QuotationForm = () => {
       const db = await openDb();
 
       // Fetch costs and rates from the database
-      const product: Product = await db.get("SELECT * FROM Products WHERE id = ?", selectedProductId);
-      const material: Material = await db.get("SELECT * FROM Materials WHERE material_id = ?", selectedMaterialId);
-      const coating: Coating = await db.get("SELECT * FROM Coatings WHERE coating_id = ?", selectedCoatingId);
-      const costParams = await db.get("SELECT * FROM CostParameters WHERE parameter_id = 1");
+      const product: Product = await db.get(
+        'SELECT * FROM Products WHERE id = ?',
+        selectedProductId
+      );
+      const material: Material = await db.get(
+        'SELECT * FROM Materials WHERE material_id = ?',
+        selectedMaterialId
+      );
+      const coating: Coating = await db.get(
+        'SELECT * FROM Coatings WHERE coating_id = ?',
+        selectedCoatingId
+      );
+      const costParams = await db.get(
+        'SELECT * FROM CostParameters WHERE parameter_id = 1'
+      );
 
       // Fetch operations and their multipliers
       const operations = await db.all(
@@ -111,7 +146,7 @@ const QuotationForm = () => {
       await db.close();
 
       if (!product || !material || !coating || !costParams) {
-        console.error("Could not retrieve required data for cost calculation.");
+        console.error('Could not retrieve required data for cost calculation.');
         return;
       }
 
@@ -129,11 +164,11 @@ const QuotationForm = () => {
 
       setTotalCost(total);
     } catch (error) {
-      console.error("Error calculating total cost:", error);
+      console.error('Error calculating total cost:', error);
       toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "Failed to calculate total cost.",
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'Failed to calculate total cost.',
       });
     }
   };
@@ -143,9 +178,9 @@ const QuotationForm = () => {
 
     if (!selectedProductId || !selectedMaterialId || !selectedCoatingId) {
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select a product, material, and coating.",
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please select a product, material, and coating.',
       });
       return;
     }
@@ -154,13 +189,22 @@ const QuotationForm = () => {
       const db = await openDb();
 
       // Fetch names for PDF
-      const product: Product = await db.get("SELECT * FROM Products WHERE id = ?", selectedProductId);
-      const material: Material = await db.get("SELECT * FROM Materials WHERE material_id = ?", selectedMaterialId);
-      const coating: Coating = await db.get("SELECT * FROM Coatings WHERE coating_id = ?", selectedCoatingId);
+      const product: Product = await db.get(
+        'SELECT * FROM Products WHERE id = ?',
+        selectedProductId
+      );
+      const material: Material = await db.get(
+        'SELECT * FROM Materials WHERE material_id = ?',
+        selectedMaterialId
+      );
+      const coating: Coating = await db.get(
+        'SELECT * FROM Coatings WHERE coating_id = ?',
+        selectedCoatingId
+      );
       await db.close();
 
       if (!product || !material || !coating) {
-        console.error("Could not retrieve required data for PDF.");
+        console.error('Could not retrieve required data for PDF.');
         return;
       }
 
@@ -190,22 +234,23 @@ const QuotationForm = () => {
 
       if (emailSent) {
         toast({
-          title: "Quotation sent!",
-          description: "Your quotation has been sent to the customer.",
+          title: 'Quotation sent!',
+          description: 'Your quotation has been sent to the customer.',
         });
       } else {
         toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "There was a problem sending the quotation.",
+          variant: 'destructive',
+          title: 'Uh oh! Something went wrong.',
+          description: 'There was a problem sending the quotation.',
         });
       }
     } catch (error) {
       console.error('Error generating PDF or sending email:', error);
       toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem generating the PDF or sending the email.",
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description:
+          'There was a problem generating the PDF or sending the email.',
       });
     }
   };
@@ -225,7 +270,7 @@ const QuotationForm = () => {
                 type="text"
                 id="companyName"
                 value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
+                onChange={e => setCompanyName(e.target.value)}
                 required
               />
             </div>
@@ -235,18 +280,18 @@ const QuotationForm = () => {
                 type="email"
                 id="customerEmail"
                 value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
+                onChange={e => setCustomerEmail(e.target.value)}
                 required
               />
             </div>
             <div>
               <Label htmlFor="productName">Product</Label>
-              <Select onValueChange={(value) => setSelectedProductId(parseInt(value))}>
+              <Select onValueChange={value => setSelectedProductId(parseInt(value))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a product" />
                 </SelectTrigger>
                 <SelectContent>
-                  {products.map((product) => (
+                  {products.map(product => (
                     <SelectItem key={product.id} value={product.id.toString()}>
                       {product.name}
                     </SelectItem>
@@ -257,13 +302,16 @@ const QuotationForm = () => {
 
             <div>
               <Label htmlFor="material">Material</Label>
-              <Select onValueChange={(value) => setSelectedMaterialId(parseInt(value))}>
+              <Select onValueChange={value => setSelectedMaterialId(parseInt(value))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a material" />
                 </SelectTrigger>
                 <SelectContent>
-                  {materials.map((material) => (
-                    <SelectItem key={material.material_id} value={material.material_id.toString()}>
+                  {materials.map(material => (
+                    <SelectItem
+                      key={material.material_id}
+                      value={material.material_id.toString()}
+                    >
                       {material.name}
                     </SelectItem>
                   ))}
@@ -273,13 +321,16 @@ const QuotationForm = () => {
 
             <div>
               <Label htmlFor="coating">Coating</Label>
-              <Select onValueChange={(value) => setSelectedCoatingId(parseInt(value))}>
+              <Select onValueChange={value => setSelectedCoatingId(parseInt(value))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a coating" />
                 </SelectTrigger>
                 <SelectContent>
-                  {coatings.map((coating) => (
-                    <SelectItem key={coating.coating_id} value={coating.coating_id.toString()}>
+                  {coatings.map(coating => (
+                    <SelectItem
+                      key={coating.coating_id}
+                      value={coating.coating_id.toString()}
+                    >
                       {coating.name}
                     </SelectItem>
                   ))}
@@ -293,7 +344,7 @@ const QuotationForm = () => {
                 type="number"
                 id="quantity"
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
+                onChange={e => setQuantity(Number(e.target.value))}
                 required
               />
             </div>
